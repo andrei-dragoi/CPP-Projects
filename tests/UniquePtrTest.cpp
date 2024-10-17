@@ -55,6 +55,14 @@ bool move_operator_test()
     return u2->_member_id == id && u2->_member_value == value;
 }
 
+bool set_test()
+{
+    UniquePtr<std::pair<int, int>> u{1, 2};
+    u.set(2, 1);
+    
+    return u->first == 2 && u->second == 1;
+}
+
 bool unique_ptr_tests()
 {
     return empty_test()
@@ -62,5 +70,6 @@ bool unique_ptr_tests()
         && pointer_constructor_test()
         && get_test()
         && move_constructor_test()
-        && move_operator_test();
+        && move_operator_test()
+        && set_test();
 }

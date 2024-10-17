@@ -320,6 +320,13 @@ bool erase_end()
     return true;
 }
 
+bool const_test()
+{
+    const Vector<size_t> v{1, 2, 3};
+
+    return v.front() == 1 && v.back() == 3 && v.end() - v.begin() == 3;
+}
+
 bool vector_tests()
 {
     return empty_test()
@@ -344,5 +351,6 @@ bool vector_tests()
         && erase_empty()
         && erase_start()
         && erase_middle()
-        && erase_end();
+        && erase_end()
+        && const_test();
 }

@@ -13,52 +13,47 @@ public:
     virtual int next_year_population(int current_population) const = 0;
     
     virtual ~Animal() = default;
-
-private:
-    std::string _animal_name{};
-    std::string _animal_noise{};
-    int _population_multiplier{};
 };
 
-class Cow : public Animal
+class Cow final : public Animal
 {
 public:
-    std::string type() const
+    std::string type() const final
     {
         return "Cow";
     }
     
-    std::string speak() const
+    std::string speak() const final
     {
         return "Mooo";
     }
     
-    int next_year_population(int current_population) const
+    int next_year_population(int current_population) const final
     {
         return 2 * current_population;
     }
     
-    ~Cow() = default;
+    ~Cow() final = default;
 };
 
-class Wolf : public Animal
+class Wolf final : public Animal
 {
 public:
 
-    std::string type() const
+    std::string type() const final
     {
         return "Wolf";
     }
     
-    std::string speak() const
+    std::string speak() const final
     {
         return "Awoo";
     }
     
-    int next_year_population(int current_population) const
+    int next_year_population(int current_population) const final
     {
         return 4 * current_population;
     }
     
-    ~Wolf() = default;
+    ~Wolf() final = default;
 };

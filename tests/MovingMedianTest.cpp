@@ -2,14 +2,14 @@
 
 bool empty_test()
 {
-    MovingMedian ma{};
+    MovingMedian<double> ma{};
     
     return ma.get_average() == 0;
 }
 
 bool one_element_test()
 {
-    MovingMedian ma{};
+    MovingMedian<double> ma{};
     
     ma.add_number(10);
     
@@ -18,7 +18,7 @@ bool one_element_test()
 
 bool even_element_count_test()
 {
-    MovingMedian ma{};
+    MovingMedian<double> ma{};
     
     ma.add_number(10);
     ma.add_number(20);
@@ -30,7 +30,7 @@ bool even_element_count_test()
 
 bool odd_element_count_test()
 {
-    MovingMedian ma{};
+    MovingMedian<double> ma{};
     
     ma.add_number(10);
     ma.add_number(20);
@@ -41,14 +41,14 @@ bool odd_element_count_test()
 
 bool random_order_test()
 {
-    MovingMedian ma{};
+    MovingMedian<double> ma{};
     
     ma.add_number(20);
     ma.add_number(60);
     ma.add_number(70);
     ma.add_number(40);
     ma.add_number(50);
-    ma.add_number(30);
+    ma.add_number(90);
     ma.add_number(80);
     ma.add_number(30);
     ma.add_number(10);

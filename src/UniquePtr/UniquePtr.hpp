@@ -66,6 +66,18 @@ public:
     {
         return _pointer;
     }
+
+    template<typename... Args>
+    requires (std::is_constructible_v<T, Args...>)
+    void set(Args&&... args)
+    {
+        if (_pointer)
+        {
+            _pointer->~T();
+        }
+
+        new (_pointer) T(std::forward<Args>(args)...);
+    }
     
     T* release()
     {

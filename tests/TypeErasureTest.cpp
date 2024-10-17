@@ -1,6 +1,13 @@
 #include "../src/TypeErasure/TypeErasure.hpp"
 #include "../src/TypeErasure/Animal.hpp"
 
+bool empty_test()
+{
+    AnimalView av{};
+
+    return av.speak().empty() && av.type().empty() && av.next_year_population(0) == 0;
+}
+
 bool basic_test()
 {
     Cow cow{};
@@ -22,6 +29,7 @@ bool switch_animal_test()
 
 bool animal_view_tests()
 {
-    return basic_test()
+    return empty_test()
+        && basic_test()
         && switch_animal_test();
 }

@@ -14,18 +14,18 @@ private:
         alignas(alignof(T)) std::byte _resource [sizeof(T)]{};
         std::atomic<size_t> _count{1};
         
-        ControlBlock()
-        {
-        }
+        ControlBlock() = default;
 
         template<typename... Args>
         requires (std::is_constructible_v<T, Args...>)
+        : _count{1}
         ControlBlock(Args&&... args)
         {
             new (&_resource) T(std::forward<Args>(args)...);
         }
 
-        ~ControlBlock() {
+        ~ControlBlock() 
+        {
             reinterpret_cast<T*>(&_resource)->~T();
         }
     };
@@ -37,12 +37,13 @@ public:
     requires (std::is_constructible_v<T, Args...>)
     SharedPtr(Args&&... args)
     : _control_block_pointer{new ControlBlock{std::forward<Args>(args)...}}
+    , _t_pointer{nullptr}
     {
     }
 
     SharedPtr(T* pointer)
-    : _t_pointer{pointer}
-    , _control_block_pointer{new ControlBlock{}}
+    : _control_block_pointer{new ControlBlock{}}
+    , _t_pointer{pointer}
     {
     }
     
@@ -68,7 +69,7 @@ public:
     {
         if (this != &other)
         {
-            free_memory();
+            decrement_count();
             
             _control_block_pointer = other._control_block_pointer;
             _t_pointer = other._t_pointer;
@@ -86,7 +87,7 @@ public:
     {
         if (this != &other)
         {
-            free_memory();
+            decrement_count();
             
             _control_block_pointer = other._control_block_pointer;
             _t_pointer = other._t_pointer;
@@ -135,19 +136,19 @@ public:
     
     size_t use_count() const 
     {
-        return _control_block_pointer ? _control_block_pointer->_count.load() : 0;
+        return _control_block_pointer ? _control_block_pointer->_count.load(std::memory_order_relaxed) : 0;
     }
     
     ~SharedPtr()
     {
-        free_memory();
+        decrement_count();
     }
 
 private:
     ControlBlock* _control_block_pointer{};
     T* _t_pointer{};
     
-    void free_memory()
+    void decrement_count()
     {
         if (_t_pointer)
         {

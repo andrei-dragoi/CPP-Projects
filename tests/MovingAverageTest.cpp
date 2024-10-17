@@ -2,14 +2,14 @@
 
 bool empty_test()
 {
-    MovingAverage<3> ma{};
+    MovingAverage<double, 3> ma{};
     
     return ma.get_average() == 0;
 };
 
 bool sub_capacity_test()
 {
-    MovingAverage<3> ma{};
+    MovingAverage<double, 3> ma{};
     
     ma.add_number(1);
     ma.add_number(2);
@@ -19,7 +19,7 @@ bool sub_capacity_test()
 
 bool at_capacity_test()
 {
-    MovingAverage<3> ma{};
+    MovingAverage<double, 3> ma{};
     
     ma.add_number(1);
     ma.add_number(2);
@@ -30,7 +30,7 @@ bool at_capacity_test()
 
 bool over_capacity_test()
 {
-    MovingAverage<3> ma{};
+    MovingAverage<double, 3> ma{};
     
     ma.add_number(1);
     ma.add_number(2);

@@ -20,7 +20,7 @@ struct RemoveOrderInfo
 class Book
 {
 public:
-    void add(Order order, TradeRecorder& trade_recorder)
+    void add(Order& order, TradeRecorder& trade_recorder)
     {
         if (_remove_order_map.count(order._order_id))
         {
@@ -60,19 +60,18 @@ public:
 private:
     using OrderBook = std::list<std::list<Order>>;
     using RemoveOrderMap = std::unordered_map<OrderId, RemoveOrderInfo>;
-    using Comp = bool (*) (Order&, Order&);
 
     OrderBook _buy_orders{};
     OrderBook _sell_orders{};
     RemoveOrderMap _remove_order_map{};
     
-    Comp _buy_cross_comp{ [] (Order& buy_order, Order& sell_order) { return buy_order._price >= sell_order._price; } };
-    Comp _sell_cross_comp{ [] (Order& sell_order, Order& buy_order) { return sell_order._price <= buy_order._price; } };
+    static constexpr auto _buy_cross_comp{ [] (Order& buy_order, Order& sell_order) { return buy_order._price >= sell_order._price; } };
+    static constexpr auto _sell_cross_comp{ [] (Order& sell_order, Order& buy_order) { return sell_order._price <= buy_order._price; } };
 
-    Comp _buy_level_comp{ [] (Order& this_order, Order& other_order) { return this_order._price < other_order._price; } };
-    Comp _sell_level_comp{ [] (Order& this_order, Order& other_order) { return this_order._price > other_order._price; } };
+    static constexpr auto _buy_level_comp{ [] (Order& this_order, Order& other_order) { return this_order._price < other_order._price; } };
+    static constexpr auto _sell_level_comp{ [] (Order& this_order, Order& other_order) { return this_order._price > other_order._price; } };
 
-    void add_impl(auto order, auto& this_side_order_book, auto& other_side_order_book, auto cross_comp, auto level_comp, TradeRecorder& trade_recorder)
+    void add_impl(Order& order, auto& this_side_order_book, auto& other_side_order_book, auto cross_comp, auto level_comp, TradeRecorder& trade_recorder)
     {
         auto other_side_level_iter = other_side_order_book.begin();
 

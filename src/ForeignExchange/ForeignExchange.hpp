@@ -17,7 +17,7 @@ enum class Currency
     //...
 };
 
-std::ostream& operator<<(std::ostream& os, const Currency& currency)
+inline std::ostream& operator<<(std::ostream& os, const Currency& currency)
 {
     switch(currency)
     {
@@ -83,7 +83,7 @@ public:
         _currency_graph.erase(to_remove);
     }
 
-    auto get_all_fx_rates(Currency from_currency, Currency to_currency)
+    std::vector<double> get_all_fx_rates(Currency from_currency, Currency to_currency)
     {
         std::vector<double> final_fx_rates{};
         std::unordered_set<Currency> visited{from_currency};

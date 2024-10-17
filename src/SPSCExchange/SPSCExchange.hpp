@@ -1,44 +1,29 @@
 #pragma once
 
 #include <thread>
+#include <vector>
 
 #include "../Exchange/Exchange.hpp"
 #include "../RingBuffer/RingBuffer.hpp"
+#include "RandomOrderGenerator.hpp"
 
-struct RandomOrderGenerator
-{
-    std::uint64_t _max_symbol{};
-    std::uint64_t _max_price{};
-    std::uint64_t _max_quantity{};
-    std::uint64_t _order_id{};
-    static constexpr Side _enum_list [] = {Side::bid, Side::ask};
-
-    RandomOrderGenerator(std::uint64_t max_symbol, std::uint64_t max_price, std::uint64_t max_quantity)
-    : _max_symbol{max_symbol}, _max_price{max_price}, _max_quantity{max_quantity}
-    {
-    }
-
-    Order generate()
-    {
-        ++_order_id;
-        std::uint64_t random_symbol = 1 + std::rand() % (_max_symbol); 
-        std::uint64_t random_price = 1 + std::rand() % (_max_price); 
-        std::uint64_t random_quantity = 1 + std::rand() % (_max_quantity); 
-        Side random_side = _enum_list[std::rand() & 1]; 
-
-        return Order{_order_id, random_symbol, random_price, random_quantity, random_side};
-    }
-};
-
-template<size_t size>
+template<size_t buffer_size = 126, size_t exchange_count = 1>
 class SPSCExchange
 {
 public:
-    SPSCExchange(TradeRecorder& trade_recorder, RandomOrderGenerator& random_order_generator, Exchange& external_exchange)
-    : _exchange{trade_recorder}
+    SPSCExchange(std::vector<Exchange>& exchange_list, RandomOrderGenerator& random_order_generator)
+    : _ring_buffer{}
     , _keep_going{true}
     , _producer_thread{ [&](){ this->produce(random_order_generator); } }
-    , _consumer_thread{ [&](){ this->consume(external_exchange); } }
+    , _consumer_thread{ [&](){ this->consume(exchange_list); } }
+    {
+    }
+    
+    SPSCExchange(std::vector<Exchange>& exchange_list, const std::vector<Order>& order_list)
+    : _ring_buffer{}
+    , _keep_going{true}
+    , _producer_thread{ [&](){ this->produce(order_list); } }
+    , _consumer_thread{ [&](){ this->consume(exchange_list); } }
     {
     }
 
@@ -56,7 +41,24 @@ public:
         }
     }
 
-    void consume(Exchange& external_exchange)
+    void produce(const std::vector<Order>& orders)
+    {
+        auto order_iter = orders.begin();
+        Order order{};
+
+        while (_keep_going.load(std::memory_order_relaxed) && order_iter != orders.end())
+        {
+            order = *order_iter;
+
+            while (_keep_going.load(std::memory_order_acq_rel) && !_ring_buffer.write(order))
+            {
+            }
+
+            ++order_iter;
+        }
+    }
+
+    void consume(std::vector<Exchange>& exchange_list)
     {
         Order order{};
 
@@ -64,20 +66,21 @@ public:
         {
             while (_keep_going.load(std::memory_order_relaxed) && _ring_buffer.read(order))
             { 
-                _exchange.add_order(order);
-                external_exchange.add_order(order);
+                for (auto& exchange : exchange_list)
+                {
+                    exchange.add_order(order);
+                }
             }
         }
     }
 
     void terminate()
     {
-        _keep_going.store(false, std::memory_order_acq_rel);
+        _keep_going.store(false, std::memory_order_relaxed);
     }
 
 private:
-    Exchange _exchange;
-    RingBuffer<Order, size> _ring_buffer{};
+    RingBuffer<Order, buffer_size> _ring_buffer{};
     std::atomic<bool> _keep_going{};
     std::jthread _producer_thread{};
     std::jthread _consumer_thread{};

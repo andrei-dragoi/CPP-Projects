@@ -12,6 +12,7 @@ public:
     
     Vector(size_t size)
     : _pointer{static_cast<T*>( ::operator new (sizeof(T) * size, std::align_val_t(alignof(T))) )}
+    , _size{}
     , _capacity{size}
     {
     }
@@ -63,7 +64,7 @@ public:
         other._capacity = 0;
     }
     
-    Vector& operator= (Vector& other)
+    Vector& operator=(const Vector& other)
     {
         if (this == &other)
         {
@@ -85,7 +86,7 @@ public:
         return *this;
     }
     
-    Vector& operator= (Vector&& other)
+    Vector& operator=(Vector&& other)
     {
         if (this == &other)
         {
@@ -103,7 +104,7 @@ public:
     }
     
     template<typename... Args>
-    requires std::is_constructible_v<T, Args...>
+    requires (std::is_constructible_v<T, Args...>)
     void push_back(Args&&... args)
     {
         if (_size == _capacity)
@@ -137,7 +138,27 @@ public:
         return _pointer[0];
     }
 
+    const T& front() const
+    {
+        if (_size == 0)
+        {
+            throw std::runtime_error{"Vector is empty"};
+        }
+
+        return _pointer[0];
+    }
+
     T& back()
+    {
+        if (_size == 0)
+        {
+            throw std::runtime_error{"Vector is empty"};
+        }
+
+        return _pointer[_size - 1];
+    }
+
+    const T& back() const
     {
         if (_size == 0)
         {
@@ -151,18 +172,23 @@ public:
     {
         return _pointer[index];
     }
+
+    const T& operator[] (size_t index) const
+    {
+        return _pointer[index];
+    }
     
-    bool empty()
+    bool empty() const
     {
         return _size == 0;
     }
 
-    size_t size()
+    size_t size() const
     {
         return _size;
     }
 
-    size_t capacity()
+    size_t capacity() const
     {
         return _capacity;
     }
@@ -183,6 +209,11 @@ public:
         return _pointer;
     }
 
+    const Vector::Iterator begin() const
+    {
+        return _pointer;
+    }
+
     Vector::Iterator end()
     {
         return (_pointer == nullptr) ? 
@@ -190,8 +221,15 @@ public:
                 _pointer + _size;
     }
 
+    const Vector::Iterator end() const
+    {
+        return (_pointer == nullptr) ? 
+            _pointer : 
+                _pointer + _size;
+    }
+
     template<typename... Args>
-    requires std::is_constructible_v<T, Args...>    
+    requires (std::is_constructible_v<T, Args...> )   
     void insert(Vector::Iterator iter, Args&&... args)
     {
         if (_capacity == 0)

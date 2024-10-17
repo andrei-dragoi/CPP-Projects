@@ -49,7 +49,7 @@ public:
             return false;
         }
         
-        _buffer[index].second = std::move(t);
+        _buffer[index].second = std::forward<T>(t);
         
         bool_ref.store(true, std::memory_order_release);
         

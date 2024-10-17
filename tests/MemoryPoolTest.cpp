@@ -6,9 +6,9 @@
 bool empty_initialization_test()
 {
     MemoryPool<int> mp{};
-    auto* ptr = mp.get_memory();
+    auto& ref = mp.get_object();
 
-    return ptr != nullptr && mp.memory_used() == 1;
+    return mp.objects_used() == 1;
 }
 
 bool contiguous_allocation_test()
@@ -16,11 +16,11 @@ bool contiguous_allocation_test()
     size_t memory_pool_size = 10;
     MemoryPool<int> mp{memory_pool_size};
 
-    auto* ptr = mp.get_memory();
+    auto* ptr = &mp.get_object();
 
     for (size_t i = 1; i < memory_pool_size; ++i)
     {
-        auto* new_ptr = mp.get_memory();
+        auto* new_ptr = &mp.get_object();
 
         if (ptr - new_ptr != 1)
         {
@@ -36,19 +36,21 @@ bool contiguous_allocation_test()
 bool self_reserve_test()
 {
     MemoryPool<int> mp{1};
-    mp.get_memory();
+    mp.get_object();
+    mp.get_object();
 
-    return mp.get_memory() != nullptr && mp.memory_used() == 2;
+    return mp.objects_used() == 2;
 }
 
 bool deallocation_test()
 {
     MemoryPool<int> mp{1};
 
-    auto* ptr = mp.get_memory();
-    mp.return_memory(ptr);
+    auto& ref = mp.get_object();
+    auto* ptr = &ref;
+    mp.return_object(ref);
 
-    return mp.memory_left() == 1 && mp.get_memory() == ptr;
+    return mp.objects_left() == 1 && &mp.get_object() == ptr;
 }
 
 bool object_allocation_test()
@@ -68,7 +70,7 @@ bool object_deallocation_test()
     auto* ptr = &ref;
     mp.return_object(ref);
 
-    return mp.get_memory() == ptr;
+    return &mp.get_object() == ptr;
 }
 
 bool resizing_test()
@@ -78,11 +80,11 @@ bool resizing_test()
 
     for (size_t i = 0; i < memory_pool_size; ++i)
     {
-        mp.get_memory();
+        mp.get_object();
     }
-    mp.get_memory();
+    mp.get_object();
 
-    return mp.memory_used() == 11 && mp.memory_left() == 9;
+    return mp.objects_used() == 11 && mp.objects_left() == 9;
 }
 
 bool no_default_test()

@@ -11,18 +11,7 @@ struct Transaction
     Price _price{};
     Quantity _quantity{};
 
-    bool operator==(const Transaction& other) const
-    {
-        return _order_id == other._order_id
-            && _symbol == other._symbol
-            && _price == other._price
-            && _quantity == other._quantity;
-    }
-
-    bool operator!=(const Transaction& other) const
-    {
-        return !(*this == other);
-    }
+    auto operator<=>(const Transaction&) const = default;
     
     friend std::ostream& operator<<(std::ostream& os, const Transaction& transaction)
     {
@@ -41,25 +30,9 @@ struct TradeRecorder
         _trades.push_back(t);
     }
 
-    bool operator==(const TradeRecorder& other) const
-    {
-        if (_trades.size() != other._trades.size())
-        {
-            return false;
-        }
+    auto operator<=>(const TradeRecorder&) const = default;
 
-        for (size_t i = 0; i < _trades.size(); ++i)
-        {
-            if (_trades[i] != other._trades[i])
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    auto& record() const
+    const std::vector<Transaction>& record() const
     {
         return _trades;
     }

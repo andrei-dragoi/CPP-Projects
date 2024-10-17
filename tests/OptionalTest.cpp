@@ -80,6 +80,14 @@ bool move_operator_test()
     return o2.get()._member_id == id && o2.get()._member_value == value;
 }
 
+bool clear_test()
+{
+    Optional<int> o{10};
+    o.clear();
+    
+    return o.empty();
+}
+
 bool optional_tests()
 {
     return empty_test()

@@ -33,6 +33,7 @@ public:
         if (!other.empty())
         {
             new (_buffer) T(std::move(*reinterpret_cast<T*>(other._buffer)));
+            other._has_value = false;
         }
     }
     
@@ -42,14 +43,11 @@ public:
         {
             return *this;
         }
+
+        clear();
         
         if (!other.empty())
-        {
-            if (!empty())
-            {
-                reinterpret_cast<T*>(_buffer)->~T();
-            }
-            
+        {   
             new (_buffer) T(const_cast<T&>(reinterpret_cast<const T*>(other._buffer)));
         }
         
@@ -64,18 +62,17 @@ public:
         {
             return *this;
         }
+
+        clear();
+
+        _has_value = other._has_value;
         
         if (!other.empty())
-        {
-            if (!empty())
-            {
-                reinterpret_cast<T*>(_buffer)->~T();
-            }
-            
+        {   
             new (_buffer) T(std::move(*reinterpret_cast<T*>(_buffer)));
+
+            other._has_value = false;
         }
-        
-        _has_value = other._has_value;
         
         return *this;
     }
@@ -89,17 +86,34 @@ public:
         
         return *reinterpret_cast<T*>(_buffer);
     }
+
+    const T& get() const
+    {
+        if (empty())
+        {
+            throw std::runtime_error{"Optional object is empty"};
+        }
+        
+        return *reinterpret_cast<const T*>(_buffer);
+    }
     
     template<typename... Args>
+    requires std::is_constructible_v<T, Args...>
     void set(Args&&... args)
     {
-        if (!empty())
-        {
-           reinterpret_cast<T*>(_buffer)->~T();
-        }
+        clear();
         
         _has_value = true;
         new (_buffer) T(std::forward<Args>(args)...);
+    }
+
+    void clear()
+    {
+        if (!empty())
+        {
+            reinterpret_cast<T*>(_buffer)->~T();
+            _has_value = false;
+        }
     }
     
     bool empty() const
@@ -109,10 +123,7 @@ public:
     
     ~Optional()
     {
-        if (!empty())
-        {
-            reinterpret_cast<T*>(_buffer)->~T();
-        }
+        clear();
     }
 
 private:
