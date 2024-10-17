@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Exchange/Order.hpp"
+
 struct RandomOrderGenerator
 {
     std::uint64_t _max_symbol{};
