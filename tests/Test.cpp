@@ -11,7 +11,10 @@ bool vector_tests();
 bool run_all_tests();
 bool spsc_all_tests();
 bool animal_view_tests();
-bool unordered_map_tests();
+bool matrix_tests();
+bool unique_ptr_tests();
+bool shared_ptr_tests();
+bool spsc_all_tests();
 
 //call all forwarded declared functions in main
 int main()
@@ -25,7 +28,10 @@ int main()
     assert(run_all_tests());
     assert(spsc_all_tests());
     assert(animal_view_tests());
-    assert(unordered_map_tests());
+    assert(matrix_tests());
+    assert(unique_ptr_tests());
+    assert(shared_ptr_tests());
+    assert(spsc_all_tests());
 
     return 0;
 }
