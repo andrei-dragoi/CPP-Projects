@@ -150,7 +150,8 @@ public:
         return _matrix.size();
     }
     
-    size_t cols() const{
+    size_t cols() const
+    {
         return _matrix[0].size();
     }
     
