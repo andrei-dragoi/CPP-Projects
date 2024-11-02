@@ -1,5 +1,3 @@
-#include <cassert>
-
 #include "../src/Matrix/Matrix.hpp"
 
 bool empty_test()

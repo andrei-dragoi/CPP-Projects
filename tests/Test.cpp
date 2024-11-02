@@ -15,6 +15,7 @@ bool matrix_tests();
 bool unique_ptr_tests();
 bool shared_ptr_tests();
 bool spsc_all_tests();
+bool mutex_tests();
 
 //call all forwarded declared functions in main
 int main()
@@ -32,6 +33,7 @@ int main()
     assert(unique_ptr_tests());
     assert(shared_ptr_tests());
     assert(spsc_all_tests());
+    assert(mutex_tests());
 
     return 0;
 }
